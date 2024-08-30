@@ -34,6 +34,21 @@ jobs:
           fi
 
           echo "Building charts and pushing to ACR"
+
+          if [ -z "${CHARTS_ACR_TOKEN}" ]; then
+            CHARTS_ACR_TOKEN=$(az keyvault secret show \
+                --name charts-pipeline-acr-token \
+                --vault-name backend-team \
+                --subscription Internal \
+                --query value \
+                --output tsv
+            )
+          fi
+
+          echo "${CHARTS_ACR_TOKEN}" | helm registry login corti.azurecr.io \
+              --username chart-token \
+              --password-stdin
+
           for path in "${charts[@]}"; do
             CHART=$(echo -ne "${path}" | cut -d/ -f2)
             VERSION=$(yq -e '.version' "$path")
