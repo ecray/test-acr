@@ -25,7 +25,7 @@ jobs:
       - name: Build and Push to ACR
         run: |
           BUILD_DIR=build
-          CHARTS_REPOSITORY=corti
+          CHARTS_REPOSITORY=xyz
 
           mapfile -t charts < <( git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep Chart.yaml )
           if [[ ${#charts[@]} -eq 0 ]]; then
@@ -45,7 +45,7 @@ jobs:
             )
           fi
 
-          echo "${CHARTS_ACR_TOKEN}" | helm registry login corti.azurecr.io \
+          echo "${CHARTS_ACR_TOKEN}" | helm registry login xyz.azurecr.io \
               --username chart-token \
               --password-stdin
 
@@ -58,7 +58,7 @@ jobs:
 
             for tarball in "${BUILD_DIR}"/*.tgz; do
                 [[ -e "${tarball}" ]] || continue
-                helm push "${tarball}" oci://corti.azurecr.io/charts
+                helm push "${tarball}" oci://xyz.azurecr.io/charts
 
                 # Update tag to make image immutable
                 az acr repository update \
