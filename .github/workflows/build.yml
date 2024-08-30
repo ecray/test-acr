@@ -25,7 +25,7 @@ jobs:
       - name: Output changed files
         run: |
           BUILD_DIR=build
-          echo "Changed files:"
+          CHARTS_REPOSITORY=corti
 
           mapfile -t charts < <( git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep Chart.yaml )
           if [[ ${#charts[@]} -eq 0 ]]; then
@@ -33,10 +33,24 @@ jobs:
             exit 0
           fi
 
+          echo "Building charts and pushing to ACR"
           for path in "${charts[@]}"; do
             CHART=$(echo -ne "${path}" | cut -d/ -f2)
             VERSION=$(yq -e '.version' "$path")
             printf "%-16.16s | %s" $CHART $VERSION
             echo ""
             helm package "charts/${CHART}" --dependency-update --destination "${BUILD_DIR}"
+
+            for tarball in "${BUILD_DIR}"/*.tgz; do
+                [[ -e "${tarball}" ]] || continue
+                helm push "${}tarball}" oci://corti.azurecr.io/charts
+
+                # Update tag to make image immutable
+                az acr repository update \
+                  --name "$CHARTS_REPOSITORY" \
+                  --image "charts/${CHART}:${VERSION}" \
+                  --delete-enabled false \
+                  --write-enabled false
+            done
+
           done
