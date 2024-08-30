@@ -35,4 +35,3 @@ jobs:
           for path in "${charts[@]}"; do
             echo -ne "${path}" | awk -F/ '{printf "- %-16.16s | ", $1} '
           done
-          }
