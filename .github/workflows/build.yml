@@ -34,7 +34,9 @@ jobs:
           fi
 
           for path in "${charts[@]}"; do
-            echo -ne "${path}" | awk -F/ '{printf "- %-16.16s | ", $2} '
             CHART=$(echo -ne "${path}" | cut -d/ -f2)
+            VERSION=$(yq -e '.version' "$path")
+            printf "%-16.16s | %s" $CHART $VERSION
+            echo ""
             helm package "charts/${CHART}" --dependency-update --destination "${BUILD_DIR}"
           done
