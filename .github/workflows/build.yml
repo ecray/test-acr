@@ -36,5 +36,5 @@ jobs:
           for path in "${charts[@]}"; do
             echo -ne "${path}" | awk -F/ '{printf "- %-16.16s | ", $2} '
             CHART=$(echo -ne "${path}" | cut -d/ -f2)
-            helm package "${CHART}" --dependency-update --destination "${BUILD_DIR}"
+            helm package "${path}" --dependency-update --destination "${BUILD_DIR}"
           done
