@@ -1,4 +1,4 @@
-name: List Changed Files
+name: Build and Push Charts
 
 on:
   push:
@@ -22,7 +22,7 @@ jobs:
           git diff --name-only ${{ github.event.before }} ${{ github.sha }} >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
 
-      - name: Output changed files
+      - name: Build and Push to ACR
         run: |
           BUILD_DIR=build
           CHARTS_REPOSITORY=corti
