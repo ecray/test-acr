@@ -25,4 +25,14 @@ jobs:
       - name: Output changed files
         run: |
           echo "Changed files:"
-          git diff --name-only ${{ github.event.before }} ${{ github.sha }}
+
+          mapfile -t charts < <( git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep Chart.yaml )
+          if [[ ${#charts[@]} -eq 0 ]]; then
+            echo "No chart changes"
+            exit 0
+          fi
+
+          for path in "${charts[@]}"; do
+            echo -ne "${path}" | awk -F/ '{printf "- %-16.16s | ", $1} '
+          done
+          }
