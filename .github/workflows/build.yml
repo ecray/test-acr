@@ -1,37 +1,28 @@
-name: Build and Push to ACR
+name: List Changed Files
+
 on:
   push:
     branches:
-      - 'main'
+      - main
+
 jobs:
-  build:
-    name: 'Build and Push to ACR'
+  list-files:
     runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        shell: bash
-
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Changed Files
-        uses: tj-actions/changed-files@v45
-
-      - name: List all changed files
-        env:
-          ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
-        run: |
-          for file in ${ALL_CHANGED_FILES}; do
-            echo "$file was changed"
-          done
-
-      - name: Get all changed Charts
-        id: changed-markdown-files
-        uses: tj-actions/changed-files@v45
         with:
-          # Avoid using single or double quotes for multiline patterns
-          files: |
-            Chart.yaml
+          fetch-depth: 0  # Fetch all history for all branches and tags
 
+      - name: Get changed files
+        id: changed-files
+        run: |
+          echo "Changed files:" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          git diff --name-only ${{ github.event.before }} ${{ github.sha }} >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Output changed files
+        run: |
+          echo "Changed files:"
+          git diff --name-only ${{ github.event.before }} ${{ github.sha }}
