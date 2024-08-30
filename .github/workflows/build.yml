@@ -24,6 +24,7 @@ jobs:
 
       - name: Output changed files
         run: |
+          BUILD_DIR=build
           echo "Changed files:"
 
           mapfile -t charts < <( git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep Chart.yaml )
@@ -33,6 +34,7 @@ jobs:
           fi
 
           for path in "${charts[@]}"; do
-            #echo -ne "${path}" | awk -F/ '{printf "- %-16.16s | ", $1} '
-            echo -ne "${path}"
+            echo -ne "${path}" | awk -F/ '{printf "- %-16.16s | ", $2} ')
+            CHART=$(echo -ne "${path}" | cut -d/ -f2)
+            helm package "${CHART}" --dependency-update --destination "${BUILD_DIR}"
           done
