@@ -43,7 +43,7 @@ jobs:
 
             for tarball in "${BUILD_DIR}"/*.tgz; do
                 [[ -e "${tarball}" ]] || continue
-                helm push "${}tarball}" oci://corti.azurecr.io/charts
+                helm push "${tarball}" oci://corti.azurecr.io/charts
 
                 # Update tag to make image immutable
                 az acr repository update \
